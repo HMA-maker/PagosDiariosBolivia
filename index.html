@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Pagos Públicos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            font-weight: bold;
+        }
+        .nota {
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Contador de Pagos Públicos</h1>
+    <table id="tabla-gastos">
+        <thead>
+            <tr>
+                <th>Categoría</th>
+                <th>Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Filas se agregarán dinámicamente -->
+        </tbody>
+        <tfoot>
+            <tr class="total">
+                <td>Total</td>
+                <td id="monto-total">Bs 0 millones</td>
+            </tr>
+        </tfoot>
+    </table>
+    <p id="fecha-tipo" style="text-align: center; margin-top: 20px;"></p>
+    <p id="nota" class="nota"></p>
+
+    <script>
+        // Función para animar el incremento de un número
+        function animarContador(elemento, valorFinal, duracion = 2000) {
+            let valorInicial = 0;
+            const incremento = valorFinal / (duracion / 10); // Incremento por paso
+            let valorActual = 0;
+            const intervalo = setInterval(() => {
+                valorActual += incremento;
+                if (valorActual >= valorFinal) {
+                    valorActual = valorFinal;
+                    clearInterval(intervalo);
+                }
+                elemento.textContent = `Bs ${Math.round(valorActual * 10) / 10} millones`;
+            }, 10);
+        }
+
+        // Función para extraer el número del string (ej: "Bs 309,7 millones" -> 309.7)
+        function extraerNumero(texto) {
+            return parseFloat(texto.replace(/Bs /, '').replace(/ millones/, '').replace(',', '.'));
+        }
+
+        // Cargar el archivo JSON
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                const tablaBody = document.querySelector('#tabla-gastos tbody');
+                const montoTotalElemento = document.getElementById('monto-total');
+                const fechaTipoElemento = document.getElementById('fecha-tipo');
+                const notaElemento = document.getElementById('nota');
+
+                // Mostrar fecha y tipo
+                fechaTipoElemento.textContent = `${data.fecha} - ${data.tipo}`;
+
+                // Mostrar nota
+                notaElemento.textContent = data.nota;
+
+                // Agregar filas para cada pago
+                let totalNumerico = extraerNumero(data.monto_total);
+                Object.keys(data.pagos).forEach(categoria => {
+                    const montoTexto = data.pagos[categoria];
+                    const montoNumerico = extraerNumero(montoTexto);
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${categoria}</td>
+                        <td id="${categoria.toLowerCase().replace(' ', '-')}">Bs 0 millones</td>
+                    `;
+                    tablaBody.appendChild(fila);
+
+                    // Animar cada monto
+                    const montoElemento = document.getElementById(categoria.toLowerCase().replace(' ', '-'));
+                    animarContador(montoElemento, montoNumerico);
+                });
+
+                // Animar el total
+                animarContador(montoTotalElemento, totalNumerico);
+            })
+            .catch(error => console.error('Error al cargar data.json:', error));
+    </script>
+</body>
+</html>
