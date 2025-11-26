@@ -1,0 +1,12 @@
+{
+  "fecha": "25 Noviembre 2025",
+  "tipo": "Gasto Diario",
+  "monto_total": "Bs 1.496,0 millones",
+  "pagos": {
+    "Combustibles": "Bs 309,7 millones",
+    "Renta Dignidad": "Bs 100 millones",
+    "Salud": "Bs 142,6 millones",
+    "Otros": "Bs 943,7 millones"
+  },
+  "nota": "Se pagó por concepto de aporte laboral y patronal Bs 553 millones."
+}
