@@ -14,10 +14,14 @@
         h1 {
             text-align: center;
         }
+        h2 {
+            text-align: center;
+            margin-top: 40px;
+        }
         table {
             width: 100%;
             max-width: 800px;
-            margin: 0 auto;
+            margin: 0 auto 20px auto;
             border-collapse: collapse;
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -42,7 +46,27 @@
 </head>
 <body>
     <h1>Contador de Pagos Públicos</h1>
-    <table id="tabla-gastos">
+    
+    <h2>Gastos Diarios</h2>
+    <table id="tabla-diarios">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Categoría</th>
+                <th>Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Filas se agregarán dinámicamente -->
+        </tbody>
+        <tfoot>
+            <!-- Totales por día se agregarán aquí si es necesario -->
+        </tfoot>
+    </table>
+    <div id="notas-diarias"></div>
+
+    <h2>Gasto Acumulado</h2>
+    <table id="tabla-acumulado">
         <thead>
             <tr>
                 <th>Categoría</th>
@@ -55,18 +79,17 @@
         <tfoot>
             <tr class="total">
                 <td>Total</td>
-                <td id="monto-total">Bs 0 millones</td>
+                <td id="monto-total-acumulado">Bs 0 millones</td>
             </tr>
         </tfoot>
     </table>
-    <p id="fecha-tipo" style="text-align: center; margin-top: 20px;"></p>
-    <p id="nota" class="nota"></p>
+    <p id="fecha-acumulado" style="text-align: center; margin-top: 20px;"></p>
 
     <script>
         // Función para animar el incremento de un número
         function animarContador(elemento, valorFinal, duracion = 2000) {
             let valorInicial = 0;
-            const incremento = valorFinal / (duracion / 10); // Incremento por paso
+            const incremento = valorFinal / (duracion / 10);
             let valorActual = 0;
             const intervalo = setInterval(() => {
                 valorActual += incremento;
@@ -74,49 +97,92 @@
                     valorActual = valorFinal;
                     clearInterval(intervalo);
                 }
-                elemento.textContent = `Bs ${Math.round(valorActual * 10) / 10} millones`;
+                elemento.textContent = `Bs ${valorActual.toFixed(1).replace('.', ',')} millones`;
             }, 10);
         }
 
         // Función para extraer el número del string (ej: "Bs 309,7 millones" -> 309.7)
         function extraerNumero(texto) {
-            return parseFloat(texto.replace(/Bs /, '').replace(/ millones/, '').replace(',', '.'));
+            return parseFloat(texto.replace(/Bs /, '').replace(/ millones/, '').replace('.', '').replace(',', '.'));
         }
 
         // Cargar el archivo JSON
         fetch('data.json')
             .then(response => response.json())
             .then(data => {
-                const tablaBody = document.querySelector('#tabla-gastos tbody');
-                const montoTotalElemento = document.getElementById('monto-total');
-                const fechaTipoElemento = document.getElementById('fecha-tipo');
-                const notaElemento = document.getElementById('nota');
+                const tablaDiariosBody = document.querySelector('#tabla-diarios tbody');
+                const notasDiarias = document.getElementById('notas-diarias');
+                const tablaAcumuladoBody = document.querySelector('#tabla-acumulado tbody');
+                const montoTotalAcumuladoElemento = document.getElementById('monto-total-acumulado');
+                const fechaAcumuladoElemento = document.getElementById('fecha-acumulado');
 
-                // Mostrar fecha y tipo
-                fechaTipoElemento.textContent = `${data.fecha} - ${data.tipo}`;
+                // Mostrar gastos diarios
+                data.datos_diarios.forEach(dia => {
+                    const fecha = dia.fecha;
+                    const pagos = dia.pagos;
+                    const totalDiarioNumerico = extraerNumero(dia.monto_total);
+                    const nota = dia.nota || '';
 
-                // Mostrar nota
-                notaElemento.textContent = data.nota;
+                    // Agregar fila para total diario
+                    const filaTotal = document.createElement('tr');
+                    filaTotal.classList.add('total');
+                    filaTotal.innerHTML = `
+                        <td>${fecha} - Total</td>
+                        <td></td>
+                        <td id="total-${fecha.replace(/ /g, '-')}">Bs 0 millones</td>
+                    `;
+                    tablaDiariosBody.appendChild(filaTotal);
+                    const totalElemento = document.getElementById(`total-${fecha.replace(/ /g, '-')}`);
+                    animarContador(totalElemento, totalDiarioNumerico);
 
-                // Agregar filas para cada pago
-                let totalNumerico = extraerNumero(data.monto_total);
-                Object.keys(data.pagos).forEach(categoria => {
-                    const montoTexto = data.pagos[categoria];
+                    // Agregar filas para cada categoría
+                    Object.keys(pagos).forEach(categoria => {
+                        const montoTexto = pagos[categoria];
+                        const montoNumerico = extraerNumero(montoTexto);
+                        const fila = document.createElement('tr');
+                        fila.innerHTML = `
+                            <td>${fecha}</td>
+                            <td>${categoria}</td>
+                            <td id="${categoria.toLowerCase().replace(/ /g, '-')}-${fecha.replace(/ /g, '-')}">Bs 0 millones</td>
+                        `;
+                        tablaDiariosBody.appendChild(fila);
+
+                        // Animar monto
+                        const montoElemento = document.getElementById(`${categoria.toLowerCase().replace(/ /g, '-')}-${fecha.replace(/ /g, '-')}`);
+                        animarContador(montoElemento, montoNumerico);
+                    });
+
+                    // Agregar nota
+                    if (nota) {
+                        const pNota = document.createElement('p');
+                        pNota.classList.add('nota');
+                        pNota.textContent = `${fecha}: ${nota}`;
+                        notasDiarias.appendChild(pNota);
+                    }
+                });
+
+                // Mostrar gasto acumulado
+                const acumulado = data.gasto_acumulado;
+                fechaAcumuladoElemento.textContent = `Acumulado hasta ${acumulado.fecha}`;
+                const totalAcumuladoNumerico = extraerNumero(acumulado.monto_total);
+
+                Object.keys(acumulado.pagos).forEach(categoria => {
+                    const montoTexto = acumulado.pagos[categoria];
                     const montoNumerico = extraerNumero(montoTexto);
                     const fila = document.createElement('tr');
                     fila.innerHTML = `
                         <td>${categoria}</td>
-                        <td id="${categoria.toLowerCase().replace(' ', '-')}">Bs 0 millones</td>
+                        <td id="acum-${categoria.toLowerCase().replace(/ /g, '-')}">Bs 0 millones</td>
                     `;
-                    tablaBody.appendChild(fila);
+                    tablaAcumuladoBody.appendChild(fila);
 
-                    // Animar cada monto
-                    const montoElemento = document.getElementById(categoria.toLowerCase().replace(' ', '-'));
+                    // Animar monto
+                    const montoElemento = document.getElementById(`acum-${categoria.toLowerCase().replace(/ /g, '-')}`);
                     animarContador(montoElemento, montoNumerico);
                 });
 
-                // Animar el total
-                animarContador(montoTotalElemento, totalNumerico);
+                // Animar total acumulado
+                animarContador(montoTotalAcumuladoElemento, totalAcumuladoNumerico);
             })
             .catch(error => console.error('Error al cargar data.json:', error));
     </script>
