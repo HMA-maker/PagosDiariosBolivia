@@ -1,12 +1,38 @@
 {
-  "fecha": "25 Noviembre 2025",
-  "tipo": "Gasto Diario",
-  "monto_total": "Bs 1.496,0 millones",
-  "pagos": {
-    "Combustibles": "Bs 309,7 millones",
-    "Renta Dignidad": "Bs 100 millones",
-    "Salud": "Bs 142,6 millones",
-    "Otros": "Bs 943,7 millones"
-  },
-  "nota": "Se pagó por concepto de aporte laboral y patronal Bs 553 millones."
+"datos_diarios": [
+{
+"fecha": "25 Noviembre 2025",
+"tipo": "Gasto Diario",
+"monto_total": "Bs 1.496,0 millones",
+"pagos": {
+"Combustibles": "Bs 309,7 millones",
+"Renta Dignidad": "Bs 100 millones",
+"Salud": "Bs 142,6 millones",
+"Otros": "Bs 943,7 millones"
+},
+"nota": "Se pagó por concepto de aporte laboral y patronal Bs 553 millones."
+},
+{
+"fecha": "26 Noviembre 2025",
+"tipo": "Gasto Diario",
+"monto_total": "Bs 489,5 millones",
+"pagos": {
+"Combustibles": "Bs 89.8 millones",
+"Renta Dignidad": "Bs 146.0 millones",
+"Salud": "Bs 5.3 millones",
+"Otros": "Bs 248.4 millones"
+},
+"nota": "Se realizó la transferencia de Bs 192.8 millones en favor de las Universidades Públicas."
+}
+],
+"gasto_acumulado": {
+"fecha": "26 Noviembre 2025",
+"monto_total": "Bs 1.985,5 millones",
+"pagos": {
+"Combustibles": "Bs 399.5 millones",
+"Renta Dignidad": "Bs 246.0 millones",
+"Salud": "Bs 147.9 millones",
+"Otros": "Bs 1.192,1 millones"
+}
+}
 }
