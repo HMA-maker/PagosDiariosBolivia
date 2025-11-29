@@ -1,1 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Pagos Públicos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            font-weight: bold;
+        }
+        .nota {
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Contador de Pagos Públicos</h1>
 
+    <h2>Gasto Diario</h2>
+    <table id="tabla-diario">
+        <thead>
+            <tr>
+                <th>Categoría</th>
+                <!-- Columnas de fechas se agregarán dinámicamente -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Filas de categorías se agregarán dinámicamente -->
+        </tbody>
+        <tfoot>
+            <tr class="total">
+                <td>Total</td>
+                <!-- Totales por fecha se agregarán dinámicamente -->
+            </tr>
+        </tfoot>
+    </table>
+    <div id="notas-diario"></div>
+
+    <h2>Gasto Acumulado</h2>
+    <table id="tabla-acumulado">
+        <thead>
+            <tr>
+                <th>Categoría</th>
+                <th>Monto (Bs millones)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Filas se agregarán dinámicamente -->
+        </tbody>
+        <tfoot>
+            <tr class="total">
+                <td>Total</td>
+                <td id="total-acumulado">Bs 0 millones</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+        // Función para animar el incremento de un número
+        function animarContador(elemento, valorFinal, duracion = 2000) {
+            let valorInicial = 0;
+            const incremento = valorFinal / (duracion / 10);
+            let valorActual = 0;
+            const intervalo = setInterval(() => {
+                valorActual += incremento;
+                if (valorActual >= valorFinal) {
+                    valorActual = valorFinal;
+                    clearInterval(intervalo);
+                }
+                elemento.textContent = formatMonto(valorActual);
+            }, 10);
+        }
+
+        // Función para formatear el monto en estilo boliviano (1.496,0)
+        function formatMonto(numero) {
+            const fixed = numero.toFixed(1);
+            const parts = fixed.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            return `Bs ${parts.join(',')} millones`;
+        }
+
+        // Función para formatear fecha (2025-11-25 -> 25 nov)
+        function formatFecha(fechaStr) {
+            const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+            const parts = fechaStr.split('-');
+            const dia = parseInt(parts[2], 10);
+            const mes = meses[parseInt(parts[1], 10) - 1];
+            return `${dia} ${mes}`;
+        }
+
+        // Cargar el archivo JSON
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                // Procesar Gasto Diario
+                const diario = data.diario;
+                const fechas = Object.keys(diario).sort();
+                const categorias = Object.keys(diario[fechas[0]].pagos);
+
+                const tablaDiarioHead = document.querySelector('#tabla-diario thead tr');
+                const tablaDiarioBody = document.querySelector('#tabla-diario tbody');
+                const tablaDiarioFoot = document.querySelector('#tabla-diario tfoot tr');
+                const notasDiario = document.getElementById('notas-diario');
+
+                // Agregar columnas de fechas
+                fechas.forEach(fecha => {
+                    const th = document.createElement('th');
+                    th.textContent = `F: ${formatFecha(fecha)}`;
+                    tablaDiarioHead.appendChild(th);
+                });
+
+                // Agregar filas de categorías
+                categorias.forEach(cat => {
+                    const tr = document.createElement('tr');
+                    const tdCat = document.createElement('td');
+                    tdCat.textContent = cat;
+                    tr.appendChild(tdCat);
+
+                    fechas.forEach(fecha => {
+                        const td = document.createElement('td');
+                        td.id = `${cat.toLowerCase().replace(' ', '-')}-${fecha}`;
+                        td.textContent = formatMonto(0);
+                        tr.appendChild(td);
+                    });
+
+                    tablaDiarioBody.appendChild(tr);
+                });
+
+                // Agregar totales por fecha
+                fechas.forEach(fecha => {
+                    const td = document.createElement('td');
+                    td.id = `total-${fecha}`;
+                    td.textContent = formatMonto(0);
+                    tablaDiarioFoot.appendChild(td);
+                });
+
+                // Animar los valores diarios
+                fechas.forEach(fecha => {
+                    categorias.forEach(cat => {
+                        const elemento = document.getElementById(`${cat.toLowerCase().replace(' ', '-')}-${fecha}`);
+                        const valor = diario[fecha].pagos[cat];
+                        animarContador(elemento, valor);
+                    });
+                    const totalElemento = document.getElementById(`total-${fecha}`);
+                    const totalValor = diario[fecha].total;
+                    animarContador(totalElemento, totalValor);
+                });
+
+                // Agregar notas diarias
+                fechas.forEach(fecha => {
+                    const p = document.createElement('p');
+                    p.className = 'nota';
+                    p.textContent = `${formatFecha(fecha)}: ${diario[fecha].nota}`;
+                    notasDiario.appendChild(p);
+                });
+
+                // Procesar Gasto Acumulado
+                const acumulado = data.acumulado;
+                const fechaAcum = Object.keys(acumulado)[0]; // Asumimos la última
+                const pagosAcum = acumulado[fechaAcum].pagos;
+                const totalAcum = acumulado[fechaAcum].total;
+                const tablaAcumBody = document.querySelector('#tabla-acumulado tbody');
+                const totalAcumElemento = document.getElementById('total-acumulado');
+
+                // Agregar filas de categorías acumuladas
+                categorias.forEach(cat => {
+                    const tr = document.createElement('tr');
+                    const tdCat = document.createElement('td');
+                    tdCat.textContent = cat;
+                    const tdMonto = document.createElement('td');
+                    tdMonto.id = `acum-${cat.toLowerCase().replace(' ', '-')}`;
+                    tdMonto.textContent = formatMonto(0);
+                    tr.appendChild(tdCat);
+                    tr.appendChild(tdMonto);
+                    tablaAcumBody.appendChild(tr);
+                });
+
+                // Animar valores acumulados
+                categorias.forEach(cat => {
+                    const elemento = document.getElementById(`acum-${cat.toLowerCase().replace(' ', '-')}`);
+                    const valor = pagosAcum[cat];
+                    animarContador(elemento, valor);
+                });
+                animarContador(totalAcumElemento, totalAcum);
+            })
+            .catch(error => console.error('Error al cargar data.json:', error));
+    </script>
+</body>
+</html>
