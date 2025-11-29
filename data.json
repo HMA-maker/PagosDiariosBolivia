@@ -1,35 +1,64 @@
 {
-"diario": {
-"2025-11-25": {
-"pagos": {
-"Combustibles": 309.7,
-"Renta Dignidad": 100.0,
-"Salud": 142.6,
-"Otros": 943.7
-},
-"total": 1496.0,
-"nota": "Se pagó por concepto de aporte laboral y patronal Bs 553 millones."
-},
-"2025-11-26": {
-"pagos": {
-"Combustibles": 89.8,
-"Renta Dignidad": 146.0,
-"Salud": 5.3,
-"Otros": 248.4
-},
-"total": 489.5,
-"nota": "Se realizó la transferencia de Bs 192.8 millones en favor de las Universidades Públicas."
-}
-},
-"acumulado": {
-"2025-11-26": {
-"pagos": {
-"Combustibles": 399.5,
-"Renta Dignidad": 246.0,
-"Salud": 147.9,
-"Otros": 1192.1
-},
-"total": 1985.5
-}
-}
+  "diario": {
+    "2025-11-25": {
+      "pagos": {
+        "Combustibles": 309.7,
+        "Renta Dignidad": 100.0,
+        "Salud": 142.6,
+        "Otros": 943.7
+      },
+      "total": 1496.0,
+      "nota": "Se pagó por concepto de aporte laboral y patronal Bs 553 millones."
+    },
+    "2025-11-26": {
+      "pagos": {
+        "Combustibles": 89.8,
+        "Renta Dignidad": 146.0,
+        "Salud": 5.3,
+        "Otros": 248.4
+      },
+      "total": 489.5,
+      "nota": "Se realizó la transferencia de Bs 192.8 millones en favor de las Universidades Públicas."
+    },
+    "2025-11-27": {
+      "pagos": {
+        "Combustibles": 3.6,
+        "Renta Dignidad": 0.0,
+        "Salud": 14.1,
+        "Otros": 463.8
+      },
+      "total": 481.5,
+      "nota": ""
+    },
+    "2025-11-28": {
+      "pagos": {
+        "Combustibles": 207.3,
+        "Renta Dignidad": 104.0,
+        "Salud": 6.1,
+        "Otros": 176.7
+      },
+      "total": 494.1,
+      "nota": ""
+    }
+  },
+  "acumulado": {
+    "2025-11-26": {
+      "pagos": {
+        "Combustibles": 399.5,
+        "Renta Dignidad": 246.0,
+        "Salud": 147.9,
+        "Otros": 1192.1
+      },
+      "total": 1985.5
+    },
+    "2025-11-28": {
+      "pagos": {
+        "Combustibles": 610.4,
+        "Renta Dignidad": 350.0,
+        "Salud": 168.1,
+        "Otros": 1832.6
+      },
+      "total": 2961.1
+    }
+  }
 }
